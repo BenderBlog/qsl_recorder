@@ -1,0 +1,10 @@
+[package]
+name = "qsl_recorder"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4.41"
+cursive = "0.21.1"
+cursive_table_view = "0.15"
+rusqlite = { version = "0.37.0", features = ["bundled", "chrono"] }
