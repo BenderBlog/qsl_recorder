@@ -1,11 +1,13 @@
-use crate::qsl_context::Context;
-use crate::qsl_type::QSL;
+use crate::qsl_context::QSLContext;
+use crate::qsl_type::{Mode, QSL};
 use cursive::reexports::log;
+use std::fs::File;
+use std::io::Write;
 
-const SPLIT_PAGE_SIZE: i64 = 18;
-
+const TYPST_TEMPLATE: &str = include_str!("../templates/template_typst.typ");
 pub(crate) struct QSLManager {
-    pub context: Context,
+    pub context: QSLContext,
+    pub(crate) split_page_size: i64,
     callsign: String,
     pub page: usize,
     max_page: usize,
@@ -13,18 +15,21 @@ pub(crate) struct QSLManager {
 }
 
 impl QSLManager {
-    pub fn new(context: Context) -> Result<Self, String> {
+    pub fn new(context: QSLContext, split_page_size: i64) -> Result<Self, String> {
         let callsign = match context.get_callsign() {
             Ok(cs) => cs,
             Err(err) => return Err(format!("Could not read callsign: {err}")),
         };
+        let number_of_record = context.get_qsl_count()? as usize;
+        let max_page = (number_of_record / split_page_size as usize + 1) - 1;
 
         Ok(QSLManager {
             context,
+            split_page_size,
             callsign,
             page: 0,
-            max_page: 0,
-            number_of_record: 0,
+            max_page,
+            number_of_record,
         })
     }
     pub fn callsign(&self) -> &String {
@@ -44,7 +49,7 @@ impl QSLManager {
             "QSLManager::fetch_qsl: number of the record is {}",
             self.number_of_record
         );
-        self.max_page = (self.number_of_record / SPLIT_PAGE_SIZE as usize + 1) as usize - 1;
+        self.max_page = (self.number_of_record / self.split_page_size as usize + 1) as usize - 1;
         log::debug!("QSLManager::fetch_qsl: max_page is {}", self.max_page);
 
         if self.page >= self.max_page {
@@ -52,7 +57,29 @@ impl QSLManager {
         }
 
         self.context
-            .get_qsl_page(SPLIT_PAGE_SIZE, self.page as i64)
+            .get_qsl_page(self.split_page_size, self.page as i64)
             .unwrap()
+    }
+
+    pub fn output_typst(&self, file: &mut File) -> std::io::Result<()> {
+        file.write_all("#let log_data = (".as_bytes())?;
+
+        let total_pages = self.max_page() + 1;
+        println!("There are {} pages.", total_pages);
+        for i in 0..total_pages {
+            let qsl_records = self
+                .context
+                .get_qsl_page(self.split_page_size, i as i64)
+                .unwrap();
+            println!("Page {} have {} records.", i, qsl_records.len());
+            for qsl in qsl_records {
+                if qsl.mode != Mode::EYEBALL {
+                    file.write_all(qsl.fmt_typst().as_bytes())?;
+                }
+            }
+        }
+        file.write_all(")\n".as_bytes())?;
+        file.write_all(TYPST_TEMPLATE.as_bytes())?;
+        Ok(())
     }
 }

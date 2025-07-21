@@ -1,100 +1,166 @@
 mod qsl_context;
+mod qsl_manage_ui;
 mod qsl_manager;
 mod qsl_type;
-mod qsl_ui;
 
-use crate::qsl_context::Context;
+use crate::qsl_context::QSLContext;
+use crate::qsl_manage_ui::{edit_record_dialog, show_qsl_table};
 use crate::qsl_manager::QSLManager;
-use crate::qsl_ui::{edit_record_dialog, show_qsl_table};
+use crate::qsl_type::Usage;
 use cursive::event::{Event, Key};
 use cursive::reexports::log;
 use cursive::reexports::log::LevelFilter;
 use cursive::views::Dialog;
 use cursive::{logger, menu};
 use std::env;
+use std::fs::File;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 3 {
-        println!("Usage: qsl <sqlite file path> [--html]");
+    if args.len() < 2 {
+        println!("Usage: qsl <sqlite file path> [--html <path> | --typst <path>]");
         return;
     }
-    let db_file_path = args[2].to_string();
+    let db_file_path = args[1].to_string();
+    let mode = if args.len() > 2 {
+        let arg = args[2].to_string();
+        if arg == "--html" {
+            Usage::HTML
+        } else if arg == "--typst" {
+            Usage::TYPST
+        } else {
+            Usage::UI
+        }
+    } else {
+        Usage::UI
+    };
+    let output_path = if mode == Usage::HTML || mode == Usage::TYPST {
+        if args.len() < 4 {
+            eprintln!("Require a path");
+            return;
+        }
+        args[3].to_string()
+    } else {
+        "".to_string()
+    };
 
-    match Context::open(&db_file_path) {
+    match QSLContext::open(&db_file_path) {
         Ok(context) => {
-            let mut siv = cursive::default();
-            logger::set_internal_filter_level(LevelFilter::Warn);
-            logger::set_external_filter_level(LevelFilter::Debug);
-            logger::init();
-
-            // Menubar
-            siv.menubar()
-                // We add a new "File" tree
-                .add_subtree(
-                    "Record",
-                    menu::Tree::new()
-                        // Trees are made of leaves, with are directly actionable...
-                        .leaf("New", move |s| {
-                            edit_record_dialog(s, None);
-                        })
-                        .leaf("Output to html", move |s| {
-                            s.add_layer(Dialog::info("Coming soon..."))
-                        }),
-                )
-                .add_subtree(
-                    "Help",
-                    menu::Tree::new()
-                        .leaf("Log", |s| s.toggle_debug_console())
-                        .leaf("About", |s| s.add_layer(Dialog::info("qsl_record 0.1.0"))),
-                )
-                .add_delimiter()
-                .add_leaf("Quit", |s| {
-                    s.add_layer(
-                        Dialog::text("Are you sure you want to quit?")
-                            .button("No", |s| {
-                                s.pop_layer();
-                            })
-                            .button("Yes", |s| {
-                                s.quit();
-                            }),
-                    )
-                });
-            siv.set_autohide_menu(false);
-
-            match QSLManager::new(context) {
-                Ok(context) => siv.set_user_data(context),
+            let qsl_manager = match QSLManager::new(context, 18) {
+                Ok(context) => context,
                 Err(e) => {
                     eprintln!("Failed to read the callsign!\nDetail: {}", e);
                     return;
                 }
-            }
+            };
 
-            siv.add_global_callback('n', |s| {
-                edit_record_dialog(s, None);
-            });
-
-            siv.add_global_callback(Event::Key(Key::Esc), |s| {
-                log::debug!("s.screen.len {}", s.screen().len());
-                if s.screen().len() > 1 {
-                    s.pop_layer();
-                } else {
-                    s.add_layer(
-                        Dialog::text("Are you sure you want to quit?")
-                            .title("Confirm")
-                            .button("No", |s| {
-                                s.pop_layer();
-                            })
-                            .button("Yes", |s| {
-                                s.quit();
-                            }),
-                    );
+            if mode == Usage::HTML || mode == Usage::TYPST {
+                match File::create_new(output_path) {
+                    Ok(mut file) => match mode {
+                        Usage::HTML => {
+                            eprintln!(
+                                "HTML output not implemented, output a typst file instead.\nDo not forget to change the extension, sry!"
+                            );
+                            match qsl_manager.output_typst(&mut file) {
+                                Ok(()) => {
+                                    println!("Successful writing to file.");
+                                    return;
+                                }
+                                Err(err) => {
+                                    eprintln!("Failed to write to the file: {err}");
+                                    return;
+                                }
+                            }
+                        }
+                        Usage::TYPST => match qsl_manager.output_typst(&mut file) {
+                            Ok(()) => {
+                                println!("Successful writing to file.");
+                                return;
+                            }
+                            Err(err) => {
+                                eprintln!("Failed to write to the file: {err}");
+                                return;
+                            }
+                        },
+                        Usage::UI => { /* No need to implementation */ }
+                    },
+                    Err(err) => {
+                        eprintln!("Failed to create the file: {err}");
+                        return;
+                    }
                 }
-            });
+            } else {
+                let mut siv = cursive::default();
+                logger::set_internal_filter_level(LevelFilter::Warn);
+                logger::set_external_filter_level(LevelFilter::Debug);
+                logger::init();
 
-            show_qsl_table(&mut siv);
+                // Menubar
+                siv.menubar()
+                    // We add a new "File" tree
+                    .add_subtree(
+                        "Record",
+                        menu::Tree::new()
+                            // Trees are made of leaves, with are directly actionable...
+                            .leaf("New", move |s| {
+                                edit_record_dialog(s, None);
+                            })
+                            .leaf("Output to html", move |s| {
+                                s.add_layer(Dialog::info("Coming soon..."))
+                            }),
+                    )
+                    .add_subtree(
+                        "Help",
+                        menu::Tree::new()
+                            .leaf("Log", |s| s.toggle_debug_console())
+                            .leaf("About", |s| {
+                                s.add_layer(Dialog::info(
+                                    "qsl_record 0.1.0\nby BenderBlog Rodriguez, 2025-07-20",
+                                ))
+                            }),
+                    )
+                    .add_delimiter()
+                    .add_leaf("Quit", |s| {
+                        s.add_layer(
+                            Dialog::text("Are you sure you want to quit?")
+                                .button("No", |s| {
+                                    s.pop_layer();
+                                })
+                                .button("Yes", |s| {
+                                    s.quit();
+                                }),
+                        )
+                    });
+                siv.set_autohide_menu(false);
 
-            siv.run();
+                siv.set_user_data(qsl_manager);
+
+                siv.add_global_callback('n', |s| {
+                    edit_record_dialog(s, None);
+                });
+
+                siv.add_global_callback(Event::Key(Key::Esc), |s| {
+                    log::debug!("s.screen.len {}", s.screen().len());
+                    if s.screen().len() > 1 {
+                        s.pop_layer();
+                    } else {
+                        s.add_layer(
+                            Dialog::text("Are you sure you want to quit?")
+                                .title("Confirm")
+                                .button("No", |s| {
+                                    s.pop_layer();
+                                })
+                                .button("Yes", |s| {
+                                    s.quit();
+                                }),
+                        );
+                    }
+                });
+
+                show_qsl_table(&mut siv);
+
+                siv.run();
+            }
         }
         Err(e) => eprintln!("Failed to initialize the context!\nDetail: {}", e),
     }

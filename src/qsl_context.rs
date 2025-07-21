@@ -62,11 +62,11 @@ const DELETE_ELEMENT_QUERY: &str = "DELETE FROM qsl WHERE id = ?1";
 const GET_QSL_PAGE_QUERY: &str = "SELECT * FROM qsl ORDER BY datetime LIMIT ?1 OFFSET ?2";
 const COUNT_QUERY: &str = "SELECT COUNT(*) FROM qsl";
 
-pub struct Context {
+pub struct QSLContext {
     database: Connection,
 }
 
-impl Context {
+impl QSLContext {
     pub fn open(db_file_path: &str) -> Result<Self, String> {
         let path_is_exist = std::path::Path::new(&db_file_path).exists();
         if !path_is_exist {
@@ -111,7 +111,7 @@ impl Context {
                         }
                     }
                 }
-                Ok(Context {
+                Ok(QSLContext {
                     database: connection,
                 })
             }
