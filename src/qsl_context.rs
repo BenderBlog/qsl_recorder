@@ -59,7 +59,7 @@ SET call_number = ?1, call_type = ?2, freq = ?3, datetime = ?4, rst_me = ?5, rig
 WHERE id = ?16
 "#;
 const DELETE_ELEMENT_QUERY: &str = "DELETE FROM qsl WHERE id = ?1";
-const GET_QSL_PAGE_QUERY: &str = "SELECT * FROM qsl ORDER BY id LIMIT ?1 OFFSET ?2";
+const GET_QSL_PAGE_QUERY: &str = "SELECT * FROM qsl ORDER BY datetime LIMIT ?1 OFFSET ?2";
 const COUNT_QUERY: &str = "SELECT COUNT(*) FROM qsl";
 
 pub struct Context {

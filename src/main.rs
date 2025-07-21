@@ -6,6 +6,8 @@ mod qsl_ui;
 use crate::qsl_context::Context;
 use crate::qsl_manager::QSLManager;
 use crate::qsl_ui::{edit_record_dialog, show_qsl_table};
+use cursive::event::{Event, Key};
+use cursive::reexports::log;
 use cursive::reexports::log::LevelFilter;
 use cursive::views::Dialog;
 use cursive::{logger, menu};
@@ -49,8 +51,10 @@ fn main() {
                 .add_delimiter()
                 .add_leaf("Quit", |s| {
                     s.add_layer(
-                        Dialog::text("Are you sure?")
-                            .title("Confirm")
+                        Dialog::text("Are you sure you want to quit?")
+                            .button("No", |s| {
+                                s.pop_layer();
+                            })
                             .button("Yes", |s| {
                                 s.quit();
                             }),
@@ -65,6 +69,28 @@ fn main() {
                     return;
                 }
             }
+
+            siv.add_global_callback('n', |s| {
+                edit_record_dialog(s, None);
+            });
+
+            siv.add_global_callback(Event::Key(Key::Esc), |s| {
+                log::debug!("s.screen.len {}", s.screen().len());
+                if s.screen().len() > 1 {
+                    s.pop_layer();
+                } else {
+                    s.add_layer(
+                        Dialog::text("Are you sure you want to quit?")
+                            .title("Confirm")
+                            .button("No", |s| {
+                                s.pop_layer();
+                            })
+                            .button("Yes", |s| {
+                                s.quit();
+                            }),
+                    );
+                }
+            });
 
             show_qsl_table(&mut siv);
 
