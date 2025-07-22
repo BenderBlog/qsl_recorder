@@ -1,0 +1,38 @@
+name: Deploy QSL record
+
+on:
+  push:
+    branches: [ "main","deploy" ]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: ./
+
+      - name: Checkout deploy
+        uses: actions/checkout@v4
+        with:
+          ref: deploy
+          path: ./deploy
+
+      - name: Create output directory
+        run: mkdir ./webpage
+
+      - name: Create html
+        run: cargo run --verbose -- deploy/BI9CKG.sqlite --html webpage
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          folder: webpage
