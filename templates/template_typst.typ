@@ -17,8 +17,12 @@
 })
 #show table: it => xubiao.update(false) + it
 
+#align(center, block[
+  #callsign 电台通联记录
+])
+
 #table(
-  columns: (auto, auto, auto, auto, 1.2fr, 1.2fr, 0.8fr, 0.7fr, 0.7fr, 2fr, 1.5fr, 1.5fr, 0.7fr, 0.7fr, 2.5fr),
+  columns: (auto, auto, 0.8fr, auto, 1.2fr, 1.2fr, 0.8fr, 0.7fr, 0.7fr, 2fr, 1.5fr, 1.5fr, 0.7fr, 0.7fr, 2.5fr),
   align: center + horizon,
   stroke: 0.5pt,
   table.header(

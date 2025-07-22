@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>callsign</w>
+      <w>endfor</w>
       <w>qslmanager</w>
       <w>typst</w>
     </words>

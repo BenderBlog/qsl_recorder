@@ -1,8 +1,11 @@
 use crate::qsl_context::QSLContext;
+use crate::qsl_template::EyeballRecordTemplate;
 use crate::qsl_type::{Mode, QSL};
+use askama::Template;
 use cursive::reexports::log;
-use std::fs::File;
+use std::fs::{self, File, OpenOptions};
 use std::io::Write;
+use std::path::Path;
 
 const TYPST_TEMPLATE: &str = include_str!("../templates/template_typst.typ");
 pub(crate) struct QSLManager {
@@ -62,6 +65,7 @@ impl QSLManager {
     }
 
     pub fn output_typst(&self, file: &mut File) -> std::io::Result<()> {
+        file.write_all(format!("#let callsign = \"{}\"\n", self.callsign).as_bytes())?;
         file.write_all("#let log_data = (".as_bytes())?;
 
         let total_pages = self.max_page() + 1;
@@ -80,6 +84,39 @@ impl QSLManager {
         }
         file.write_all(")\n".as_bytes())?;
         file.write_all(TYPST_TEMPLATE.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn output_html(&self, file_folder: &Path) -> std::io::Result<()> {
+        let mut eyeball = Vec::<QSL>::new();
+        let total_pages = self.max_page() + 1;
+        for i in 0..total_pages {
+            let qsl_records = self
+                .context
+                .get_qsl_page(self.split_page_size, i as i64)
+                .unwrap();
+            println!("Page {} have {} records.", i, qsl_records.len());
+            for qsl in qsl_records {
+                if qsl.mode == Mode::EYEBALL {
+                    eyeball.push(qsl.clone());
+                }
+            }
+        }
+
+        let template = EyeballRecordTemplate {
+            callsign: &self.callsign,
+            records: &eyeball,
+        };
+
+        let html_content = template.render()?;
+        let file_path = file_folder.join("eyeball.html");
+        let mut file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(&file_path)?;
+        file.write_all(html_content.as_bytes())?;
+
         Ok(())
     }
 }

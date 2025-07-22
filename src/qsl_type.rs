@@ -54,7 +54,7 @@ pub struct QSL {
 impl QSL {
     pub fn fmt_typst(&self) -> String {
         let date = self.datetime.date();
-        let time = self.datetime.time();
+        let time = self.datetime.time().format("%H:%M");
         format!(
             r#"(
   call_number: "{}",
