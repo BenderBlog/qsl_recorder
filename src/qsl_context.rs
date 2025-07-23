@@ -23,7 +23,8 @@ CREATE TABLE qsl (
     qth_counterpart TEXT,
     note TEXT
 );
-
+CREATE VIEW eyeball_qsl AS SELECT * FROM qsl WHERE call_type = 0;
+CREATE VIEW formal_qsl AS SELECT * FROM qsl where call_type != 0;
 CREATE TABLE setting (
     call_number TEXT
 );
@@ -61,6 +62,10 @@ WHERE id = ?16
 const DELETE_ELEMENT_QUERY: &str = "DELETE FROM qsl WHERE id = ?1";
 const GET_QSL_PAGE_QUERY: &str = "SELECT * FROM qsl ORDER BY datetime LIMIT ?1 OFFSET ?2";
 const COUNT_QUERY: &str = "SELECT COUNT(*) FROM qsl";
+const COUNT_EYEBALL_QUERY: &str = "SELECT COUNT(*) FROM eyeball_qsl";
+const GET_EYEBALL_QUERY: &str = "SELECT * FROM eyeball_qsl ORDER BY datetime LIMIT ?1 OFFSET ?2";
+const COUNT_NON_EYEBALL_QUERY: &str = "SELECT COUNT(*) FROM formal_qsl";
+const GET_NON_EYEBALL_QUERY: &str = "SELECT * FROM formal_qsl ORDER BY datetime LIMIT ?1 OFFSET ?2";
 
 pub struct QSLContext {
     database: Connection,
@@ -288,5 +293,78 @@ impl QSLContext {
             Ok(count) => Ok(count),
             Err(e) => Err(format!("Failed to get QSL count: {}", e)),
         }
+    }
+
+    pub fn get_eyeball_qsl_count(&self) -> Result<i64, String> {
+        match self
+            .database
+            .query_row(COUNT_EYEBALL_QUERY, [], |row| row.get(0))
+        {
+            Ok(count) => Ok(count),
+            Err(e) => Err(format!("Failed to get Eyeball QSL count: {}", e)),
+        }
+    }
+
+    pub fn get_eyeball_qsl_page(
+        &self,
+        page_size: i64,
+        page_number: i64,
+    ) -> Result<Vec<QSL>, String> {
+        let offset = page_number * page_size;
+        log::debug!("Context::get_eyeball_qsl_page: offset is {offset}");
+        let mut stmt = self
+            .database
+            .prepare(GET_EYEBALL_QUERY)
+            .map_err(|e| format!("Failed to prepare query: {}", e))?;
+        let rows = stmt
+            .query_map(params![page_size, offset], Self::parse_row_to_qsl)
+            .map_err(|e| format!("Failed to query map: {}", e))?;
+
+        let mut result = Vec::new();
+
+        for row in rows {
+            result.push(row.map_err(|e| format!("Failed to read row: {}", e))?);
+        }
+        log::debug!(
+            "Context::get_eyeball_qsl_page: result's length is {}",
+            result.len()
+        );
+        Ok(result)
+    }
+    pub fn get_formal_qsl_count(&self) -> Result<i64, String> {
+        match self
+            .database
+            .query_row(COUNT_NON_EYEBALL_QUERY, [], |row| row.get(0))
+        {
+            Ok(count) => Ok(count),
+            Err(e) => Err(format!("Failed to get Formal QSL count: {}", e)),
+        }
+    }
+
+    pub fn get_formal_qsl_page(
+        &self,
+        page_size: i64,
+        page_number: i64,
+    ) -> Result<Vec<QSL>, String> {
+        let offset = page_number * page_size;
+        log::debug!("Context::get_formal_qsl_page: offset is {offset}");
+        let mut stmt = self
+            .database
+            .prepare(GET_NON_EYEBALL_QUERY)
+            .map_err(|e| format!("Failed to prepare query: {}", e))?;
+        let rows = stmt
+            .query_map(params![page_size, offset], Self::parse_row_to_qsl)
+            .map_err(|e| format!("Failed to query map: {}", e))?;
+
+        let mut result = Vec::new();
+
+        for row in rows {
+            result.push(row.map_err(|e| format!("Failed to read row: {}", e))?);
+        }
+        log::debug!(
+            "Context::get_formal_qsl_page: result's length is {}",
+            result.len()
+        );
+        Ok(result)
     }
 }

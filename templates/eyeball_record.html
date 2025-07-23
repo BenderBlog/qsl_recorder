@@ -3,34 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ callsign }} 的眼球卡记录</title>
+    <style>
+        body {
+            background-color: whitesmoke;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .table {
+            width: 94%;
+            max-width: 800px;
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* 添加柔和的阴影 */
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+
+        .table thead th {
+            background-color: #6C63FF;
+            color: #FFFFFF;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .table tbody td {
+            color: #495057;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .table tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f0efff;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e2e0ff;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-
-<p class="title">{{ callsign }} 的眼球卡记录</p>
-
-<p class="description">线下见过面，权当交换名片了。如果没有时间，那就是我忘了，抱歉:P</p>
-
-<table class="table">
-    <thead>
-    <tr>
-        <th>时间</th>
-        <th>呼号</th>
-        <th>事由</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for record in records %}
-    <tr>
-        <td>{{ record.datetime }}</td>
-        <td>{{ record.call_number }}</td>
-        <td>
-            {{ record.note | display_some }}
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-
+<div>
+    <p class="title">{{ callsign }} 的眼球卡记录</p>
+    <p class="description">线下见过面，权当交换名片了。如果没有时间，那就是我忘了，抱歉:P</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>时间</th>
+            <th>呼号</th>
+            <th>事由</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ record.datetime }}</td>
+            <td>{{ record.call_number }}</td>
+            <td>
+                {{ record.note | display_some }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
