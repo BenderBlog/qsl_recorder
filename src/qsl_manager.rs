@@ -1,13 +1,13 @@
 use crate::qsl_context::QSLContext;
-use crate::qsl_template::EyeballRecordTemplate;
-use crate::qsl_type::{Mode, QSL};
+use crate::qsl_template::RecordTemplate;
+use crate::qsl_type::QSL;
 use askama::Template;
 use cursive::reexports::log;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-const TYPST_TEMPLATE: &str = include_str!("../templates/template_typst.typ");
+const TYPST_TEMPLATE: &str = include_str!("../templates/template.typ");
 pub(crate) struct QSLManager {
     pub context: QSLContext,
     pub(crate) split_page_size: i64,
@@ -79,19 +79,21 @@ impl QSLManager {
             }
         }
 
-        let total_pages = self.max_page() + 1;
+        let record_count = self.context.get_formal_qsl_count()?;
+        let total_pages = record_count / self.split_page_size + 1;
         println!("There are {} pages.", total_pages);
         for i in 0..total_pages {
-            match self.context.get_qsl_page(self.split_page_size, i as i64) {
+            match self
+                .context
+                .get_formal_qsl_page(self.split_page_size, i as i64)
+            {
                 Ok(qsl_records) => {
                     println!("Page {} have {} records.", i, qsl_records.len());
                     for qsl in qsl_records {
-                        if qsl.mode != Mode::EYEBALL {
-                            match file.write_all(qsl.fmt_typst().as_bytes()) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    return Err(format!("{}", e));
-                                }
+                        match file.write_all(qsl.fmt_typst().as_bytes()) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                return Err(format!("{}", e));
                             }
                         }
                     }
@@ -120,51 +122,55 @@ impl QSLManager {
     }
 
     pub fn output_html(&self, file_folder: &Path) -> Result<(), String> {
-        let mut eyeball = Vec::<QSL>::new();
+        let mut record_eyeball = Vec::<QSL>::new();
+        let mut record_normal = Vec::<QSL>::new();
 
         // First, Eyeball page
         let record_count = self.context.get_eyeball_qsl_count()?;
         let total_pages = record_count / self.split_page_size + 1;
 
         for i in 0..total_pages {
-            let qsl_records = self
-                .context
-                .get_eyeball_qsl_page(self.split_page_size, i as i64)?;
-            println!("Page {} have {} records.", i, qsl_records.len());
-            for qsl in qsl_records {
-                if qsl.mode == Mode::EYEBALL {
-                    eyeball.push(qsl.clone());
-                }
-            }
+            let mut qsl_records = self.context.get_eyeball_qsl_page(self.split_page_size, i)?;
+            record_eyeball.append(&mut qsl_records);
         }
 
-        let template = EyeballRecordTemplate {
+        let record_count = self.context.get_formal_qsl_count()?;
+        let total_pages = record_count / self.split_page_size + 1;
+
+        for i in 0..total_pages {
+            let mut qsl_records = self.context.get_formal_qsl_page(self.split_page_size, i)?;
+            record_normal.append(&mut qsl_records);
+        }
+
+        let template = RecordTemplate {
             callsign: &self.callsign,
-            records: &eyeball,
+            records_formal: &record_normal,
+            records_eyeball: &record_eyeball,
         };
 
-        let html_content = match template.render() {
-            Ok(s) => s,
+        match template.render() {
+            Ok(html_content) => {
+                let file_path = file_folder.join("index.html");
+
+                match OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .truncate(true)
+                    .open(&file_path)
+                {
+                    Ok(mut file) => match file.write_all(html_content.as_bytes()) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            return Err(format!("Error on writing index.html: {}", e));
+                        }
+                    },
+                    Err(e) => {
+                        return Err(format!("Error on opening index.html: {}", e));
+                    }
+                };
+            }
             Err(e) => {
                 return Err(format!("Error on rendering qsl record: {}", e));
-            }
-        };
-        let file_path = file_folder.join("eyeball.html");
-
-        match OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(&file_path)
-        {
-            Ok(mut file) => match file.write_all(html_content.as_bytes()) {
-                Ok(_) => {}
-                Err(e) => {
-                    return Err(format!("Error on writing eyeball.html: {}", e));
-                }
-            },
-            Err(e) => {
-                return Err(format!("Error on opening eyeball.html: {}", e));
             }
         };
 

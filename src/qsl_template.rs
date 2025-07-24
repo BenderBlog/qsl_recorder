@@ -2,10 +2,11 @@ use crate::qsl_type::QSL;
 use askama::Template;
 
 #[derive(Template)]
-#[template(path = "eyeball_record.html")]
-pub struct EyeballRecordTemplate<'a> {
+#[template(path = "template.html")]
+pub struct RecordTemplate<'a> {
     pub callsign: &'a str,
-    pub records: &'a Vec<QSL>,
+    pub records_formal: &'a Vec<QSL>,
+    pub records_eyeball: &'a Vec<QSL>,
 }
 
 mod filters {

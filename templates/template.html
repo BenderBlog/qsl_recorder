@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ callsign }} 的通联记录</title>
+    <style>
+        body {
+            background-color: whitesmoke;
+        }
+
+        .record-design {
+            background-color: #fff; /* 设置卡片背景为白色 */
+            border-radius: 12px; /* 设置圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加 Material Design 风格的阴影 */
+            max-width: 800px;
+            margin: 12px auto; /* 设置周围 12px 的空隙 */
+            padding: 12px; /* 在卡片内部添加一些内边距 */
+            overflow: hidden; /* 确保内部内容不会溢出圆角 */
+        }
+
+        .record-design .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .record-design .description {
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .record-table {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+            padding: 0 16px;
+        }
+
+        .record-table table {
+            width: 94%;
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* 添加柔和的阴影 */
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+
+        .record-table table thead th {
+            background-color: #6C63FF;
+            color: #FFFFFF;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            position: sticky;
+            z-index: 1;
+        }
+
+        .record-table table thead tr:first-child th {
+            top: 0;
+            z-index: 2;
+        }
+
+        .record-table table thead tr:nth-child(2) th {
+            top: 60.5px;
+        }
+
+        .record-table table thead th .en-subtitle {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 6px;
+        }
+
+        .record-table table tbody td {
+            color: #495057;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .record-table table tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+
+        .record-table table tbody tr:nth-child(even) {
+            background-color: #f0efff;
+        }
+
+        .record-table table tbody tr:hover {
+            background-color: #e2e0ff;
+        }
+
+        .record-table table tbody tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="record-design">
+    <p class="title">{{ callsign }} 的通联记录 </p>
+    <p class="description">技术限制，无法做到分页，请使用浏览器的搜索功能搜索你的呼号或者时间。</p>
+    <div class="record-table">
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2">
+                    日期
+                    <span class="en-subtitle">DATE</span>
+                </th>
+                <th rowspan="2">
+                    时间
+                    <span class="en-subtitle">TIME</span>
+                </th>
+                <th rowspan="2">
+                    呼号
+                    <span class="en-subtitle">CALLSIGN</span>
+                </th>
+                <th rowspan="2">
+                    频率
+                    <span class="en-subtitle">MHz</span>
+                </th>
+                <th rowspan="2">
+                    模式
+                    <span class="en-subtitle">MODE</span>
+                </th>
+                <th colspan="2">
+                    信号报告
+                    <span class="en-subtitle">RST</span>
+                </th>
+                <th rowspan="2">
+                    己方电台位置
+                    <span class="en-subtitle">QTH</span>
+                </th>
+                <th rowspan="2">
+                    对方电台位置
+                    <span class="en-subtitle">QTH</span>
+                </th>
+                <th rowspan="2">
+                    己方设备
+                    <span class="en-subtitle">RIG</span>
+                </th>
+                <th rowspan="2">
+                    己方天线
+                    <span class="en-subtitle">ANT</span>
+                </th>
+                <th rowspan="2">
+                    对方设备
+                    <span class="en-subtitle">RIG</span>
+                </th>
+                <th rowspan="2">
+                    对方天线
+                    <span class="en-subtitle">ANT</span>
+                </th>
+                <th colspan="2">
+                    功率
+                    <span class="en-subtitle">PWR</span>
+                </th>
+                <th rowspan="2">
+                    备注
+                    <span class="en-subtitle">RMKS</span>
+                </th>
+            </tr>
+            <tr>
+                <th>己方</th>
+                <th>对方</th>
+                <th>己方</th>
+                <th>对方</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in records_formal %}
+            <tr>
+                <td>{{ record.datetime.date() }}</td>
+                <td>{{ record.datetime.time().format("%H:%M") }}</td>
+                <td>{{ record.call_number }}</td>
+                <td>{{ record.freq | display_some }}</td>
+                <td>{{ record.mode }}</td>
+                <td>{{ record.rst_me | display_some }}</td>
+                <td>{{ record.rst_counterpart | display_some }}</td>
+                <td>{{ record.qth_me | display_some }}</td>
+                <td>{{ record.qth_counterpart | display_some }}</td>
+                <td>{{ record.rig_me | display_some }}</td>
+                <td>{{ record.ant_me | display_some }}</td>
+                <td>{{ record.rig_counterpart | display_some }}</td>
+                <td>{{ record.ant_counterpart | display_some }}</td>
+                <td>{{ record.watt_me | display_some }}</td>
+                <td>{{ record.watt_counterpart | display_some }}</td>
+                <td>{{ record.note | display_some }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="record-design">
+    <p class="title">{{ callsign }} 的眼球卡记录</p>
+    <p class="description">线下见过面，权当交换名片了。如果没有时间，那就是我忘了，抱歉:P</p>
+    <div class="record-table">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>时间</th>
+                <th>呼号</th>
+                <th>事由</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in records_eyeball %}
+            <tr>
+                <td>{{ record.datetime }}</td>
+                <td>{{ record.call_number }}</td>
+                <td>
+                    {{ record.note | display_some }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
