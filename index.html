@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BI9CKG 的通联记录</title>
+    <style>
+        body {
+            background-color: whitesmoke;
+        }
+
+        .record-design {
+            background-color: #fff; /* 设置卡片背景为白色 */
+            border-radius: 12px; /* 设置圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加 Material Design 风格的阴影 */
+            max-width: 800px;
+            margin: 12px auto; /* 设置周围 12px 的空隙 */
+            padding: 12px; /* 在卡片内部添加一些内边距 */
+            overflow: hidden; /* 确保内部内容不会溢出圆角 */
+        }
+
+        .record-design .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .record-design .description {
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .record-table {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+            padding: 0 16px;
+        }
+
+        .record-table table {
+            width: 94%;
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* 添加柔和的阴影 */
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+
+        .record-table table thead th {
+            background-color: #6C63FF;
+            color: #FFFFFF;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            position: sticky;
+            z-index: 1;
+        }
+
+        .record-table table thead tr:first-child th {
+            top: 0;
+            z-index: 2;
+        }
+
+        .record-table table thead tr:nth-child(2) th {
+            top: 60.5px;
+        }
+
+        .record-table table thead th .en-subtitle {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 6px;
+        }
+
+        .record-table table tbody td {
+            color: #495057;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .record-table table tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+
+        .record-table table tbody tr:nth-child(even) {
+            background-color: #f0efff;
+        }
+
+        .record-table table tbody tr:hover {
+            background-color: #e2e0ff;
+        }
+
+        .record-table table tbody tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="record-design">
+    <p class="title">BI9CKG 的通联记录 </p>
+    <p class="description">技术限制，无法做到分页，请使用浏览器的搜索功能搜索你的呼号或者时间。</p>
+    <div class="record-table">
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2">
+                    日期
+                    <span class="en-subtitle">DATE</span>
+                </th>
+                <th rowspan="2">
+                    时间
+                    <span class="en-subtitle">TIME</span>
+                </th>
+                <th rowspan="2">
+                    呼号
+                    <span class="en-subtitle">CALLSIGN</span>
+                </th>
+                <th rowspan="2">
+                    频率
+                    <span class="en-subtitle">MHz</span>
+                </th>
+                <th rowspan="2">
+                    模式
+                    <span class="en-subtitle">MODE</span>
+                </th>
+                <th colspan="2">
+                    信号报告
+                    <span class="en-subtitle">RST</span>
+                </th>
+                <th rowspan="2">
+                    己方电台位置
+                    <span class="en-subtitle">QTH</span>
+                </th>
+                <th rowspan="2">
+                    对方电台位置
+                    <span class="en-subtitle">QTH</span>
+                </th>
+                <th rowspan="2">
+                    己方设备
+                    <span class="en-subtitle">RIG</span>
+                </th>
+                <th rowspan="2">
+                    己方天线
+                    <span class="en-subtitle">ANT</span>
+                </th>
+                <th rowspan="2">
+                    对方设备
+                    <span class="en-subtitle">RIG</span>
+                </th>
+                <th rowspan="2">
+                    对方天线
+                    <span class="en-subtitle">ANT</span>
+                </th>
+                <th colspan="2">
+                    功率
+                    <span class="en-subtitle">PWR</span>
+                </th>
+                <th rowspan="2">
+                    备注
+                    <span class="en-subtitle">RMKS</span>
+                </th>
+            </tr>
+            <tr>
+                <th>己方</th>
+                <th>对方</th>
+                <th>己方</th>
+                <th>对方</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>2025-06-12</td>
+                <td>21:50</td>
+                <td>BI9CLM</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>58</td>
+                <td>48</td>
+                <td>西电南校区</td>
+                <td>咸阳市渭城区人民东路 </td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UV-5RH</td>
+                <td>老鹰天线</td>
+                <td>5</td>
+                <td>10</td>
+                <td>SPRT-QSL3-05</td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-12</td>
+                <td>22:22</td>
+                <td>BI9BKD</td>
+                <td>439.650/-8/T79.7 </td>
+                <td>FM</td>
+                <td>37</td>
+                <td>27</td>
+                <td>西电南校区</td>
+                <td>航天城蓝月阁</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>8900车台</td>
+                <td>高空天线</td>
+                <td>5</td>
+                <td>25</td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-13</td>
+                <td>12:10</td>
+                <td>BI9AAZ</td>
+                <td>438.500</td>
+                <td>FM</td>
+                <td>59+</td>
+                <td>59+</td>
+                <td>西电南校区丁香宿舍</td>
+                <td>西安市长安区秦岭终南山景区观音台</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UVK6</td>
+                <td>原装天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL2-10</td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-13</td>
+                <td>21:50</td>
+                <td>BI9AKI</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>48</td>
+                <td>48</td>
+                <td>西电南校区 </td>
+                <td>西安创新港，高度 9 米</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UV-K5</td>
+                <td>原装天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL3-04</td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-13</td>
+                <td>22:00</td>
+                <td>BI9CLI</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>48</td>
+                <td>48</td>
+                <td>西电南校区</td>
+                <td>长安大学渭水校</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UV-K6</td>
+                <td>原装天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL2-09</td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-24</td>
+                <td>13:40</td>
+                <td>BI9ASM</td>
+                <td>439.310</td>
+                <td>FM</td>
+                <td>48</td>
+                <td>47</td>
+                <td>西电南校区礼仪广场平台</td>
+                <td>昆明池南</td>
+                <td>UV-5R</td>
+                <td>U5V3八木天线</td>
+                <td>IBVO UV83</td>
+                <td></td>
+                <td>5</td>
+                <td>4</td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-29</td>
+                <td>18:28</td>
+                <td>BI9CIR</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>59</td>
+                <td>59</td>
+                <td>西电南校区礼仪广场平台</td>
+                <td>渭南市陕西铁路学院高新校区</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UV-K6</td>
+                <td>RH-770</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL1-15</td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-29</td>
+                <td>18:28</td>
+                <td>BI9CLR</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>57</td>
+                <td>59</td>
+                <td>西电南校区北操场</td>
+                <td>渭南市陕西铁路学院高新</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>yixin bm289</td>
+                <td></td>
+                <td>5</td>
+                <td></td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-29</td>
+                <td>18:28</td>
+                <td>BI9CMF</td>
+                <td>439.650/-8/T79.7</td>
+                <td>FM</td>
+                <td>47-&#62;59</td>
+                <td>48-&#62;59</td>
+                <td>西电南校区北操场 </td>
+                <td>沣西沣泽桥</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>UV-5RH</td>
+                <td></td>
+                <td>5</td>
+                <td>10</td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-29</td>
+                <td>19:45</td>
+                <td>BA8AFK</td>
+                <td>431.635/+8.315/TSQ88.5</td>
+                <td>FM</td>
+                <td>48</td>
+                <td>48</td>
+                <td>西电南校区礼仪广场平台 </td>
+                <td>长大渭水校区，12 楼高度</td>
+                <td>UV-5R</td>
+                <td>原装天线</td>
+                <td>森海克撕8600</td>
+                <td>老鹰天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL2-13</td>
+            </tr>
+            
+            <tr>
+                <td>2025-07-05</td>
+                <td>23:01</td>
+                <td>BI9LIU</td>
+                <td>431.635/+8.315/TSQ88.5</td>
+                <td>FM</td>
+                <td>47</td>
+                <td>47</td>
+                <td>西电南校区六层高度</td>
+                <td>西工大长安校区</td>
+                <td>UV-5R</td>
+                <td>RH-770</td>
+                <td>UV-K6</td>
+                <td>自制八木天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL1-16，透过与BI9AKI收听到</td>
+            </tr>
+            
+            <tr>
+                <td>2025-07-05</td>
+                <td>23:23</td>
+                <td>BH8GIV</td>
+                <td>431.635/+8.315/TSQ88.5</td>
+                <td>FM</td>
+                <td>48</td>
+                <td>59</td>
+                <td>西电南校区</td>
+                <td>丰城十路 30层楼高度</td>
+                <td>UV-5R</td>
+                <td>RH-770</td>
+                <td>UV-K5</td>
+                <td>原装天线</td>
+                <td>5</td>
+                <td>5</td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-07-08</td>
+                <td>23:08</td>
+                <td>BI9COR</td>
+                <td>431.635/+8.315/TSQ88.5</td>
+                <td>FM</td>
+                <td>59</td>
+                <td>56</td>
+                <td>西电南校区北操场看台</td>
+                <td>西三环 西咸新区五月广场 五楼高度</td>
+                <td>UV-5R</td>
+                <td>RH-770</td>
+                <td>8800</td>
+                <td></td>
+                <td>5</td>
+                <td>8</td>
+                <td></td>
+            </tr>
+            
+            <tr>
+                <td>2025-07-11</td>
+                <td>21:28</td>
+                <td>BI9CLG</td>
+                <td>431.635/+8.315/TSQ88.5</td>
+                <td>FM</td>
+                <td>59</td>
+                <td>39</td>
+                <td>西电南校区北操场高台</td>
+                <td>碑林区友谊东路文艺路交界</td>
+                <td>UV-5R</td>
+                <td>RH770</td>
+                <td>UV-K6</td>
+                <td>RH775</td>
+                <td>5</td>
+                <td>5</td>
+                <td>SPRT-QSL3-10</td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="record-design">
+    <p class="title">BI9CKG 的眼球卡记录</p>
+    <p class="description">线下见过面，权当交换名片了。如果没有时间，那就是我忘了，抱歉:P</p>
+    <div class="record-table">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>时间</th>
+                <th>呼号</th>
+                <th>事由</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9CBK</td>
+                <td>
+                    SPRT-QSL1-14 时间忘记了
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9BTY</td>
+                <td>
+                    SPRT-QSL1-02 Traintime PDA 感谢贡献卡
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9CIA</td>
+                <td>
+                    SPRT-QSL1-10 Traintime PDA 感谢贡献卡
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BG0EXN</td>
+                <td>
+                    SPRT-QSL2-03
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9CKE</td>
+                <td>
+                    SPRT-QSL2-11
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9AXA</td>
+                <td>
+                    SPRT-QSL2-12
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BD8ENW</td>
+                <td>
+                    SPRT-QSL3-08
+                </td>
+            </tr>
+            
+            <tr>
+                <td>2025-06-11 11:11:00</td>
+                <td>BI9CBD</td>
+                <td>
+                    SPRT-QSL3-09
+                </td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
