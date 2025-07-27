@@ -20,7 +20,7 @@ use std::path::Path;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: qsl <sqlite file path> [--html <path> | --typst <path>]");
+        println!("Usage: qsl <sqlite file path> [--html <path> | --typst <path> | --adif <path>]");
         return;
     }
     let db_file_path = args[1].to_string();
@@ -30,13 +30,15 @@ fn main() {
             Usage::HTML
         } else if arg == "--typst" {
             Usage::TYPST
+        } else if arg == "--adif" {
+            Usage::ADIF
         } else {
             Usage::UI
         }
     } else {
         Usage::UI
     };
-    let output_path = if mode == Usage::HTML || mode == Usage::TYPST {
+    let output_path = if mode != Usage::UI {
         if args.len() < 4 {
             eprintln!("Require a path");
             return;
@@ -84,6 +86,23 @@ fn main() {
                 }
                 Usage::TYPST => match File::create_new(output_path) {
                     Ok(mut file) => match qsl_manager.output_typst(&mut file) {
+                        Ok(()) => {
+                            println!("Successful writing to file.");
+                            return;
+                        }
+                        Err(err) => {
+                            eprintln!("Failed to write to the file: {err}");
+                            return;
+                        }
+                    },
+
+                    Err(err) => {
+                        eprintln!("Failed to create the file: {err}");
+                        return;
+                    }
+                },
+                Usage::ADIF => match File::create_new(output_path) {
+                    Ok(mut file) => match qsl_manager.output_adif(&mut file) {
                         Ok(()) => {
                             println!("Successful writing to file.");
                             return;
