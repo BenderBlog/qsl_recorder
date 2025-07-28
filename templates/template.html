@@ -33,15 +33,12 @@
             overflow-x: auto;
             overflow-y: auto;
             max-height: calc(100vh - 400px);
-            padding: 0 16px;
+            border-radius: 12px;
         }
 
         .record-table table {
-            width: 94%;
+            width: 100%;
             background-color: #fff;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* 添加柔和的阴影 */
             overflow: hidden;
             border-collapse: collapse;
@@ -198,7 +195,7 @@
 </div>
 <div class="record-design">
     <p class="title">{{ callsign }} 的眼球卡记录</p>
-    <p class="description">线下见过面，权当交换名片了。如果没有时间，那就是我忘了，抱歉:P</p>
+    <p class="description">线下见过面，权当交换名片了。</p>
     <div class="record-table">
         <table class="table">
             <thead>
@@ -221,6 +218,10 @@
             </tbody>
         </table>
     </div>
+</div>
+<div class="record-design">
+    <p class="description">最近更新：{{ datetime }}</p>
+    <p class="description">本人主页：<a href="https://legacy.superbart.top">https://legacy.superbart.top/</a></p>
 </div>
 </body>
 </html>

@@ -5,6 +5,7 @@ use askama::Template;
 #[template(path = "template.html")]
 pub struct RecordTemplate<'a> {
     pub callsign: &'a str,
+    pub datetime: &'a str,
     pub records_formal: &'a Vec<QSL>,
     pub records_eyeball: &'a Vec<QSL>,
 }

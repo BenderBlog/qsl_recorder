@@ -185,6 +185,7 @@ impl QSLManager {
 
         let template = RecordTemplate {
             callsign: &self.callsign,
+            datetime: &Local::now().format("%Y-%m-%d %H:%M").to_string(),
             records_formal: &record_normal,
             records_eyeball: &record_eyeball,
         };
