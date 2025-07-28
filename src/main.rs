@@ -1,3 +1,4 @@
+mod qsl_adif_helper;
 mod qsl_context;
 mod qsl_manage_ui;
 mod qsl_manager;

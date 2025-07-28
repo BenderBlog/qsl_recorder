@@ -1,3 +1,4 @@
+use crate::qsl_adif_helper::adif_generate_line;
 use chrono::NaiveDateTime;
 use std::fmt::Display;
 
@@ -40,11 +41,15 @@ pub struct QSL {
     pub(crate) mode: Mode,
     pub(crate) freq: Option<String>,
     pub(crate) datetime: NaiveDateTime,
+    /// ADIF RST_SENT, signal report sent to the contacted station
+    /// My signal
     pub(crate) rst_me: Option<String>,
     pub(crate) qth_me: Option<String>,
     pub(crate) rig_me: Option<String>,
     pub(crate) watt_me: Option<f32>,
     pub(crate) ant_me: Option<String>,
+    /// ADIF RST_RCVD, signal report from the contacted
+    /// Counterpart signal
     pub(crate) rst_counterpart: Option<String>,
     pub(crate) qth_counterpart: Option<String>,
     pub(crate) rig_counterpart: Option<String>,
@@ -95,9 +100,75 @@ impl QSL {
             self.note.as_ref().map_or("", |n| n)
         )
     }
+    pub fn fmt_adif(&self) -> String {
+        if self.mode == Mode::EYEBALL || self.mode == Mode::OTHER {
+            eprintln!(
+                "Record {} is a EYEBALL / OTHER mode record, it will not output.",
+                self.mode
+            );
+            return "".to_string();
+        }
+        let mut str = adif_generate_line("CALL", &self.call_number).to_string();
+        str.push_str(&adif_generate_line("MODE", &self.mode.to_string()));
+        str.push_str(&adif_generate_line(
+            "QSO_DATE",
+            &self.datetime.date().format("%Y%m%d").to_string(),
+        ));
+        str.push_str(&adif_generate_line(
+            "TIME_ON",
+            &self.datetime.time().format("%H%M").to_string(),
+        ));
+        match self.get_band() {
+            Ok(band) => str.push_str(&adif_generate_line("BAND", band.as_ref())),
+            Err(e) => {
+                eprintln!("Failed to parse band in record {}: {e}", self.id);
+            }
+        }
+        if let Some(freq) = &self.freq {
+            str.push_str(&adif_generate_line("FREQ", freq.as_ref()))
+        }
 
-    pub fn get_band<'a>(&self) -> Result<impl AsRef<str>, String> {
-        let split = match (self.freq.as_ref()) {
+        if let Some(rst_me) = &self.rst_me {
+            str.push_str(&adif_generate_line("RST_SENT", rst_me));
+        }
+        if let Some(rst_counterpart) = &self.rst_counterpart {
+            str.push_str(&adif_generate_line("RST_RCVD", rst_counterpart));
+        }
+
+        if let Some(qth_me) = &self.qth_me {
+            str.push_str(&adif_generate_line("MY_QTH", qth_me));
+        }
+        if let Some(qth_counterpart) = &self.qth_counterpart {
+            str.push_str(&adif_generate_line("QTH", qth_counterpart));
+        }
+        if let Some(rig_me) = &self.rig_me {
+            str.push_str(&adif_generate_line("MY_RIG", rig_me));
+        }
+        if let Some(rig_counterpart) = &self.rig_counterpart {
+            str.push_str(&adif_generate_line("RIG", rig_counterpart));
+        }
+        if let Some(watt_me) = self.watt_me {
+            str.push_str(&adif_generate_line("TX_PWR", &watt_me.to_string()));
+        }
+        if let Some(watt_counterpart) = self.watt_counterpart {
+            str.push_str(&adif_generate_line("RX_PWR", &watt_counterpart.to_string()));
+        }
+        if let Some(ant_me) = &self.ant_me {
+            str.push_str(&adif_generate_line("MY_ANT", ant_me));
+        }
+        if let Some(ant_counterpart) = &self.ant_counterpart {
+            str.push_str(&adif_generate_line("ANT", ant_counterpart));
+        }
+        if let Some(note) = &self.note {
+            str.push_str(&adif_generate_line("NOTES", note));
+        }
+
+        str.push_str("<EOR>\n");
+        str
+    }
+
+    fn get_band<'a>(&self) -> Result<impl AsRef<str>, String> {
+        let split = match self.freq.as_ref() {
             None => {
                 return Err("Freq is none".to_string());
             }

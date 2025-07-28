@@ -1,10 +1,10 @@
+use crate::qsl_adif_helper::adif_generate_header;
 use crate::qsl_context::QSLContext;
 use crate::qsl_template::RecordTemplate;
 use crate::qsl_type::QSL;
 use askama::Template;
-use chrono::{DateTime, Local};
+use chrono::Local;
 use cursive::reexports::log;
-use std::fmt::format;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
@@ -124,58 +124,10 @@ impl QSLManager {
     }
 
     pub fn output_adif(&self, file: &mut File) -> Result<(), String> {
-        fn generate_line(k: &str, v: &str) -> String {
-            let len = v.len();
-            format!("<{k}:{len}>{v}\n")
-        }
-
-        fn generate_header(datetime: &DateTime<Local>) -> String {
-            let mut str = generate_line("ADIF_VER", "3.1.4");
-            str.push_str(&generate_line("PROGRAMID", "BenderBlog qsl_recorder"));
-            str.push_str(&generate_line("PROGRAMVERSION", "Rolling-20240726"));
-            str.push_str(&generate_line(
-                "CREATED_TIMESTAMP",
-                datetime.format("%Y%m%d %H%M00").to_string().as_str(),
-            ));
-            str.push_str("<EOH>");
-            str
-        }
-
-        fn generate_record(qsl: &QSL) -> String {
-            let mut str = generate_line("CALL", &qsl.call_number).to_string();
-            str.push_str(&generate_line(
-                "QSO_DATE",
-                &qsl.datetime.date().format("%Y%m%d").to_string(),
-            ));
-            str.push_str(&generate_line(
-                "TIME_ON",
-                &qsl.datetime.time().format("%H%M").to_string(),
-            ));
-            str.push_str(&generate_line("BAND", ""));
-            str.push_str(&generate_line("MODE", qsl.mode.to_string().as_str()));
-            match qsl.get_band() {
-                Ok(band) => str.push_str(&generate_line("BAND", band.as_ref())),
-                Err(e) => {
-                    eprintln!(
-                        "Failed to parse band, this parameter will be ignored. {}",
-                        e
-                    );
-                }
-            }
-            match &qsl.freq {
-                None => {
-                    eprintln!("Freq is empty, \"FREQ\" parameter will be ignored.",);
-                }
-                Some(freq) => str.push_str(&generate_line("FREQ", freq.as_ref())),
-            }
-            str.push_str("<EOR>");
-            str
-        }
-
         let datetime = Local::now();
         println!("ADIF file will be created at {datetime}");
 
-        match file.write_all(generate_header(&datetime).as_ref()) {
+        match file.write_all(adif_generate_header(&datetime).as_ref()) {
             Ok(_) => {}
             Err(e) => {
                 return Err(format!("{}", e));
@@ -193,7 +145,7 @@ impl QSLManager {
                 Ok(qsl_records) => {
                     println!("Page {} have {} records.", i, qsl_records.len());
                     for qsl in qsl_records {
-                        match file.write_all(generate_record(&qsl).as_ref()) {
+                        match file.write_all(qsl.fmt_adif().as_bytes()) {
                             Ok(_) => {}
                             Err(e) => {
                                 return Err(format!("{}", e));
