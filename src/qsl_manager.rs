@@ -3,7 +3,7 @@ use crate::qsl_context::QSLContext;
 use crate::qsl_template::RecordTemplate;
 use crate::qsl_type::QSL;
 use askama::Template;
-use chrono::Local;
+use chrono::{FixedOffset, Local, Utc};
 use cursive::reexports::log;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
@@ -185,7 +185,10 @@ impl QSLManager {
 
         let template = RecordTemplate {
             callsign: &self.callsign,
-            datetime: &Local::now().format("%Y-%m-%d %H:%M").to_string(),
+            datetime: &Utc::now()
+                .with_timezone(&FixedOffset::east_opt(8 * 3600).unwrap())
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
             records_formal: &record_normal,
             records_eyeball: &record_eyeball,
         };
